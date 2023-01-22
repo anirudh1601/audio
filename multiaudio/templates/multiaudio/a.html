@@ -1,0 +1,235 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.min.js" integrity="sha512-GtM/5c/Ie0lStj6QwEG0HkpMQuGr9vrOAgFD4nNmImviyZvsJxN7TYU7b+R7Kthob0zFBUpuxfl3R3Mn1qekTw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <title>Document</title>
+</head>
+<style type="text/css">
+    #video {
+        border: 1px solid black;
+    }
+    .flex1{
+    display: flex;
+    text-align: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .roles{
+    display: inline-block;
+  }
+/*  .flex1 > div {
+  flex: 1 0 26%;
+}*/
+.id1 {
+  
+  
+  border: 2px solid white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+}
+.roles{
+   border: 2px solid white;
+  display: flex;
+  
+  align-items: center;
+  font-size: 1.2em;
+  flex-direction: column;
+  justify-content:space-evenly;
+}
+
+</style>
+<body>
+    {{ name|json_script:"json-username" }}
+    <h1>hello</h1>
+    <video id="video" width="300" height="200" autoplay  autoplay src="https://thesneekhub.com/rtmp/dash/out.webm" type="video/webm" ></video>
+    <canvas id="canvas" width="300" height="200"></canvas>
+    <canvas id="canvas1" width="300" height="200"></canvas>
+    <div id="users" class="flex1">
+        <ul style="list-style-type:none; display: flex ;flex-wrap:wrap;" id="list">
+         </ul>
+    </div>
+    <!-- <img id="screen" height="300" width="300"/>-->
+    <select id="video1"  ></select> 
+    <button id ="raise">raise</button>
+    <button id="screen1">screen</button>
+</body>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" type="text/javascript"></script>
+<script>
+    // const ENDPOINT = "http://localhost:7000";
+    // const socket =  io(ENDPOINT, {});
+    // socket.on("connect_error", (err) => {
+    //     console.log(`connect_error due to ${err.message}`);
+    // });
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-bson/0.4.13/bson.min.js"></script>
+<script src="{%static 'multiaudio/a.js'%}"></script>
+<script >
+    
+    var websocket
+    var AudioContext = (window.AudioContext) || (window.webkitAudioContext)
+
+    // var audioContext = new AudioContext({
+    //     sampleRate: 16000,
+    // });
+    var loc = window.location
+    var chunks = []
+    var wsStart = 'ws://'
+    var video = document.getElementById("video")
+    var video1 = document.getElementById('video1')
+    const canvas = document.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+    const canva1 = document.querySelector("canvas1");
+    const ctx1 = canvas.getContext("2d");
+    var endPoint = wsStart+loc.host+loc.pathname+"/room";
+    const mime = ['audio/wav', 'audio/mpeg', 'audio/webm', 'audio/ogg'].filter(MediaRecorder.isTypeSupported)[0];
+    websocket = new WebSocket(endPoint)
+    
+    console.log(websocket.url)
+    var options = {
+        mimeType: "video/webm;codecs=opus, vp8",
+        //bitsPerSecond:5000 //quality
+        };
+        const frames = []
+
+    // const context = new AudioContext();
+    // var mediaSource = new MediaSource()
+    // video.src = URL.createObjectURL(mediaSource)
+    //     var sourcebuffer
+    //     mediaSource.addEventListener('sourceopen',function(){
+    //         sourcebuffer = mediaSource.addSourceBuffer('video/webm; codecs=vp8')
+    //         //console.log(sourcebuffer)
+    //     })
+     var abc
+     var final 
+     var buffer  
+     if(screen.width >= 1000){
+  // true for mobile device
+  localStorage.setItem('role','host')
+}
+else{
+    localStorage.setItem('role','audience')
+}
+
+    websocket.binaryType = "arraybuffer";
+    websocket.addEventListener('open',async(e) => {
+                    // console.log(abc.buffer)
+                    // var str = String.fromCharCode.apply(String, );
+                    // if(/[\u0080-\uffff]/.test(str)){
+                    //     throw new Error("this string seems to contain (still encoded) multibytes");
+                    // }
+                    // console.log(str)
+
+                    // console.log(abc)
+                    // console.log(e.inputBuffer.getChannelData(1))
+                    
+                    // console.log(abc.arrayBuffer())
+                    // console.log("the sent ",abc)
+                    // console.log(new ArrayBuffer(abc.byteLength))
+                    // var output = new Uint8Array(buffer);
+                    // console.log(buffer)
+                    // console.log(output)
+                        // console.log(output)
+                    
+                    // abc.arrayBuffer().then (buffer =>{
+                    //     console.log(buffer)
+                    // })
+                    // console.log(abc)
+                    // console.log(abc)
+                    // console.log(abc)
+                    // console.log(abc.arraybuffer)
+                    // console.log("sent audio")
+                    // websocket.send(JSON.stringify({'message':"hello",'audio':abc}))
+                    // websocket.send([abc,'name isabc'])
+                    // let utf8Encode = new TextEncoder();
+                    // abc[1] = utf8Encode.encode("abc")
+                    // console.log(abc)
+                    // websocket.send(abc)
+                    // websocket.send(abc)
+                }
+                
+                
+             
+               
+    )
+
+    async function hello(role){
+        console.log('open')
+        var stream = await navigator.mediaDevices.getUserMedia({
+          video: false,
+          audio: true
+        })
+                // FOR  AUDIO
+                const context = new AudioContext(); 
+                const source = context.createMediaStreamSource(stream);
+                const processor = context.createScriptProcessor(16384, 2, 2);
+                var destination = context.createMediaStreamDestination();
+
+                source.connect(processor);
+                processor.connect(destination);
+                processor.onaudioprocess = function(e) {
+                    // console.log(e)
+                    abc = e.inputBuffer.getChannelData(0)
+                    websocket.send(abc)
+                }
+            }
+    const context = new AudioContext();
+    var name
+    function isAbv(value) {
+        return value && value.buffer instanceof ArrayBuffer && value.byteLength !== undefined;
+    }
+    websocket.addEventListener('message',(e)=>{
+        // console.log(e.data)
+        const user1 = JSON.parse(document.getElementById('json-username').textContent);
+        if (typeof e.data === 'string' || e.data instanceof String){
+            // console.log(e.data)
+            name = e.data
+            // console.log(name)
+        }
+        else{
+            if (name !== user1){
+            console.log('different user will play')
+        // console.log(e.data)
+        // console.log(new Uint8Array(e.data))
+        // bytes = Uint8Array.from((e.data), c => c.charCodeAt(0))
+        // floats = new Float32Array(bytes.buffer)
+        // console.log(floats)
+        // console.log(floats)
+
+        // console.log([...floats]);
+        // console.log('got')
+        // console.log(e.data)
+
+        rawbuffer = new Float32Array(e.data);
+        // console.log(rawbuffer)
+        var playSound = context.createBufferSource();
+        let audioBuffer = context.createBuffer(32, rawbuffer.length, 48000)
+        audioBuffer.copyToChannel( rawbuffer, 0);
+        playSound.buffer = audioBuffer
+        playSound.connect(context.destination);
+        playSound.start(context.currentTime);
+        }
+        else{
+            console.log('same user wont play')
+        }
+        }
+
+
+    })
+    websocket.addEventListener('close',(e)=>{
+        console.log('close')
+    })
+    websocket.addEventListener('error',(e)=>{
+        console.log('error',e)
+    })
+
+</script>
+</html>
